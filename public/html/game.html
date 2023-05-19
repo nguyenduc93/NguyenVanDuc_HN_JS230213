@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/game.css">
+    <title>Document</title>
+    <style>
+        /* Điều chỉnh font chữ và margin cho toàn bộ nội dung */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        /* Điều chỉnh màu sắc và đường viền cho bảng */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Điều chỉnh chiều rộng và vị trí của input */
+        input[type=number] {
+            width: 50px;
+            text-align: center;
+            margin: 0 auto;
+            display: block;
+        }
+
+        /* Điều chỉnh màu sắc và vị trí của button */
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            margin-left: 48%;
+        }
+        .btn:hover {
+            background-color: #3e8e41;
+        }
+
+        /* Điều chỉnh màu sắc và font chữ của tiêu đề */
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table>
+            <thead>
+              <tr id="name">
+                <th>#</th>
+                <th>Name 1</th>
+                <th>Name 2</th>
+                <th>Name 3</th>
+                <th>Name 4</th>
+              </tr>
+            </thead>
+            <tbody id="score-body">
+              <tr class="sum">
+                <td>Sum of scores</td>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+              </tr>
+              <tbody id="round-1">
+                  <tr >
+                  </tr>
+              </tbody>
+            </tbody>
+          </table>
+          
+          <button class="btn">Add round</button>
+          
+    </div>
+
+    <script>
+const addButton = document.querySelector('.btn');
+const scoreTable = document.getElementById('score-body');
+const inputFields = [];
+let roundCount = 0;
+
+addButton.addEventListener('click', function() {
+  roundCount++;
+  const newRow = scoreTable.insertRow(-1);
+  newRow.id = `round-${roundCount}`;
+  const roundCell = newRow.insertCell(0);
+  roundCell.textContent = `Round ${roundCount}`;
+
+  for (let i = 0; i < 4; i++) {
+    const scoreCell = newRow.insertCell(i + 1);
+    const input = document.createElement('input');
+    input.type = 'number';
+    scoreCell.appendChild(input);
+    inputFields.unshift(input);
+  }
+
+  const scores = inputFields.map(field => field.value);
+  console.log(scores);
+  fetch("http://localhost:8000/api/v1/round", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+          point1: scores[4],
+          point2: scores[5],
+          point3: scores[6],
+          point4: scores[7]
+        }),
+    })
+});
+
+
+fetch("http://localhost:8000/api/v1/round")
+  .then((res) => res.json())
+  .then((data) => {
+    const points = data.map((roundData, index) => `
+      <tr id="round-${index + 1}">
+        <td>Round ${index + 1}</td>
+        <td>${roundData.point1}</td>
+        <td>${roundData.point2}</td>
+        <td>${roundData.point3}</td>
+        <td>${roundData.point4}</td>
+      </tr>
+    `).join('');
+    document.getElementById('round-1').innerHTML = points;
+  }) 
+  .catch((err) => {
+    console.log(err);
+  });
+
+
+
+fetch("http://localhost:8000/api/v1/player")
+  .then((res) => res.json())
+  .then((data) => {
+    const html = data.map((row, index) =>{   
+      return `
+     <tr>
+          <th>#</th>
+          <th>${row.name}</th>
+          <th>${row.name1}</th>
+          <th>${row.name2}</th>
+          <th>${row.name3}</th>
+     </tr>
+      `
+    }).join("");
+    const container = document.getElementById("name");
+    container.innerHTML = html;
+  }) 
+  .catch((err) => {
+    console.log(err);
+  });
+
+
+  
+    </script>
+</body>
+</html>

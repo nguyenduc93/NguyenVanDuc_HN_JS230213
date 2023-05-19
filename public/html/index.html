@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/index.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <h1> Score-keeper</h1>
+        <div class="input1">
+            <input type="text" class="inputText" id="name1"> <br>
+            <input type="text" class="inputText" id="name2"> <br>
+            <input type="text" class="inputText" id="name3"> <br>
+            <input type="text" class="inputText" id="name4"> <br>
+            <div class="validate">Please input player name!</div>
+            <button class="btn" onclick="handleBtn()">Create Game</button>
+
+        </div>
+    </div>
+    <script>
+
+function validate() {
+  const inputFields = document.querySelectorAll('.inputText');
+  console.log(inputFields.value);
+  let isInputsValid = true;
+
+  inputFields.forEach(input => {
+    if (!input.value) {
+      isInputsValid = false;
+    }
+  });
+
+  if (isInputsValid) {
+    document.querySelector('.validate').style.display = 'none';
+  } else {
+    document.querySelector('.validate').style.display = 'block';
+  }
+}
+
+document.querySelectorAll('.inputText').forEach(input => {
+  input.addEventListener('input', validate);
+});
+
+
+const player1 = document.getElementById("name1");
+const player2 = document.getElementById("name2");
+const player3 = document.getElementById("name3");
+const player4 = document.getElementById("name4");
+
+function handleBtn() {
+  
+  fetch("http://localhost:8000/api/v1/player", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: player1.value,
+      name1: player2.value,
+      name2: player3.value,
+      name3: player4.value,
+    }),
+  })
+  .then(() => {
+              // Gọi lại API để lấy danh sách players mới nhất
+              return fetch("http://localhost:8000/api/v1/player");
+            })
+            .then((res) => res.json())
+            .then((data) => {
+              alert("Thêm người chơi thành công");
+              window.location.href = `/round/${
+                data[data.length - 1].id
+              }`;
+            })
+    
+}
+
+    </script>
+</body>
+</html>
